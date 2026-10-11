@@ -1,56 +1,1168 @@
-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>钟楼手记 · 玩家推理本</title><style>
-:root{color-scheme:dark;--bg:#10131b;--panel:#1b2030;--line:#343b50;--muted:#a5afc5;--gold:#e8bf76}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#edf0f7;font:15px/1.6 system-ui,sans-serif}main{max-width:1250px;margin:auto;padding:32px 22px}h1{margin:0;font-size:32px}h2{font-size:19px;margin:0 0 12px}p{color:var(--muted)}header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:26px}.tag{color:var(--gold);font-size:12px;letter-spacing:3px}section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}input,select,textarea,button{font:inherit;font-size:16px;background:#111623;color:inherit;border:1px solid var(--line);border-radius:8px;padding:9px}input,textarea{width:100%}button{cursor:pointer}button:hover{border-color:var(--gold)}.primary{background:var(--gold);color:#211b12;font-weight:700}label{display:block;color:var(--muted);font-size:12px}label input,label select{margin-top:5px}.setup{display:grid;grid-template-columns:minmax(180px,320px);gap:14px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:12px;padding:15px;background:#151a27}.card.dead{opacity:.7}.row{display:flex;gap:10px;align-items:center;margin-bottom:10px}.seat{background:#373047;color:var(--gold);border-radius:50%;min-width:32px;text-align:center;padding:3px}.card label{margin-top:8px}.card select{width:100%}textarea{resize:vertical;min-height:68px}.small{font-size:12px;color:var(--muted)}.split{display:grid;grid-template-columns:1fr 1fr;gap:18px}.log{padding:12px 0;border-bottom:1px solid var(--line)}.log p{margin:5px 0;white-space:pre-wrap}.log button{float:right;font-size:12px}.hint{padding:12px;border-left:3px solid var(--gold);background:#242638;margin-top:10px}#save{color:#96d4b1;font-size:12px}.empty{color:var(--muted)}@media(max-width:700px){header{display:block}.setup,.split{grid-template-columns:1fr}main{padding:20px 12px}h1{font-size:27px}}@media print{button,.entry,#save{display:none}body{background:white;color:black}section,.card{background:white;color:black;break-inside:avoid}input,textarea,select{color:black;background:white}}
-</style><noscript><p style="padding:20px">钟楼手记需要运行 JavaScript。请通过已发布的网页链接在 Safari 中打开；iPhone 文件预览无法保证正常使用。</p></noscript><main><header><div><div class="tag">BLOOD ON THE CLOCKTOWER</div><h1>钟楼手记</h1><p>把说法留下，把判断留给自己。</p></div><div><span id="save">准备就绪</span><div class="bar"><button id="portable" class="primary">下载含剧本的 HTML</button><button id="export">导出分析记录</button><button id="import">导入记录</button><button id="print">打印</button><button id="reset">新开一局</button></div></div></header>
-<div id="recordPage"><section><h2>开局设置</h2><div class="bar" style="margin-bottom:14px"><label>本局剧本<select id="preset"></select></label><button id="usePreset" class="primary">使用此剧本</button><button id="openManager">管理剧本</button><span id="gameScriptStatus" class="small"></span></div><div class="setup"><label>我的座位<select id="me"></select></label></div><div class="bar" style="margin-top:14px"><label>玩家人数<select id="count" aria-label="玩家人数"></select></label><button id="add">＋ 添加座位</button><span class="small">角色声明不代表真实身份；猜测由你自行记录。</span></div></section>
-<section><h2>座位与角色声明</h2><div id="players" class="grid"></div></section><section><h2>座位身份汇总</h2><p class="small">优先显示角色声明；没有声明时显示你的猜测。声明不代表身份已确认。</p><div id="summary" style="white-space:pre-wrap;line-height:2"></div></section><div class="split"><section><h2>每日 / 每夜信息</h2><div class="entry"><div class="bar"><select id="phase"><option>第 1 夜</option><option>第 1 天</option></select><button id="next">下一阶段</button><select id="source"></select></div><label>信息性质<select id="kind"><option>玩家声明</option><option>公开发生的事件</option><option>我的猜测</option></select></label><textarea id="note" placeholder="例如：3 号说自己收到的信息是……；今天谁被提名、处决……" style="margin-top:10px"></textarea><button class="primary" id="record">记录信息</button></div><div id="logs"></div></section><section><h2>我的推理笔记</h2><label>我的整体推理<textarea id="theory" placeholder="候选世界、关键矛盾、下一步想问谁……" style="min-height:150px"></textarea></label></section></div></div><div id="managerPage" hidden><section><div class="bar" style="justify-content:space-between"><h2>剧本管理</h2><button id="backToRecords">← 返回记录</button></div><p class="small">修改会先保存在本机。要与其他设备共享，请导出共享剧本库，将文件更新到 GitHub 仓库并等待发布。游戏笔记不会随剧本库上传。</p><div class="bar"><select id="managePreset" aria-label="要编辑的剧本"></select><button id="newPreset">＋ 新增剧本</button><button id="loadEditor">载入所选剧本</button></div><label>剧本名称<input id="presetName" maxlength="60" placeholder="输入剧本名称"></label><label>校对角色名称（每行一个）<textarea id="roleList" style="min-height:140px" placeholder="粘贴 AI 提取的角色名，每行一个"></textarea></label><button id="savePreset" class="primary">保存剧本与角色</button><div class="bar" style="margin-top:12px"><button id="exportLibrary">导出共享剧本库</button><button id="syncLibrary">检查共享剧本更新</button><button id="adoptLibrary">采用仓库版本</button></div><p id="libraryStatus" class="small" role="status" aria-live="polite"></p><p id="roleStatus" class="small" role="status" aria-live="polite"></p></section></div><p class="small">日常修改保存在当前浏览器中。迁移剧本时，请点击“下载含剧本的 HTML”，把新下载的文件传到手机；新增或修改剧本后需重新下载。游戏记录可导出为分析记录，上传给 AI 或用于恢复。文件可离线使用。</p><input type="file" id="file" accept=".md,.txt,.json,text/markdown,text/plain,application/json" hidden></main>
-<script>
-'use strict';
-const key='clocktower-notes-v1', $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fresh=()=>({title:'',script:'',me:'',theory:'',phase:0,players:Array.from({length:10},(_,i)=>({name:'',claim:'',guess:'',lean:'未知',status:'存活',note:''})),logs:[],roles:[],roleDraft:'',customPresets:{},presetNames:{},activePreset:''});let state=fresh();try{const saved=localStorage.getItem(key);if(saved)state=validate(JSON.parse(saved))}catch(e){$('save').textContent='未载入旧数据，请检查备份'}
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>钟楼手记 · 玩家推理本</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10131b;
+      --panel: #1b2030;
+      --line: #343b50;
+      --muted: #a5afc5;
+      --gold: #e8bf76;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: #edf0f7;
+      font:
+        15px/1.6 system-ui,
+        sans-serif;
+    }
+    main {
+      max-width: 1250px;
+      margin: auto;
+      padding: 32px 22px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+    h2 {
+      font-size: 19px;
+      margin: 0 0 12px;
+    }
+    p {
+      color: var(--muted);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 26px;
+    }
+    .tag {
+      color: var(--gold);
+      font-size: 12px;
+      letter-spacing: 3px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+    .bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+      font-size: 16px;
+      background: #111623;
+      color: inherit;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px;
+    }
+    input,
+    textarea {
+      width: 100%;
+    }
+    button {
+      cursor: pointer;
+    }
+    button:hover {
+      border-color: var(--gold);
+    }
+    .primary {
+      background: var(--gold);
+      color: #211b12;
+      font-weight: 700;
+    }
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    label input,
+    label select {
+      margin-top: 5px;
+    }
+    .setup {
+      display: grid;
+      grid-template-columns: minmax(180px, 320px);
+      gap: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 15px;
+      background: #151a27;
+    }
+    .card.dead {
+      opacity: 0.7;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .seat {
+      background: #373047;
+      color: var(--gold);
+      border-radius: 50%;
+      min-width: 32px;
+      text-align: center;
+      padding: 3px;
+    }
+    .card label {
+      margin-top: 8px;
+    }
+    .card select {
+      width: 100%;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 68px;
+    }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .log {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .log p {
+      margin: 5px 0;
+      white-space: pre-wrap;
+    }
+    .log button {
+      float: right;
+      font-size: 12px;
+    }
+    .hint {
+      padding: 12px;
+      border-left: 3px solid var(--gold);
+      background: #242638;
+      margin-top: 10px;
+    }
+    #save {
+      color: #96d4b1;
+      font-size: 12px;
+    }
+    .empty {
+      color: var(--muted);
+    }
+    @media (max-width: 700px) {
+      header {
+        display: block;
+      }
+      .setup,
+      .split {
+        grid-template-columns: 1fr;
+      }
+      main {
+        padding: 20px 12px;
+      }
+      h1 {
+        font-size: 27px;
+      }
+    }
+    @media print {
+      button,
+      .entry,
+      #save {
+        display: none;
+      }
+      body {
+        background: white;
+        color: black;
+      }
+      section,
+      .card {
+        background: white;
+        color: black;
+        break-inside: avoid;
+      }
+      input,
+      textarea,
+      select {
+        color: black;
+        background: white;
+      }
+    }
+  </style>
+  <noscript>
+    <p style="padding: 20px">
+      钟楼手记需要运行 JavaScript。请通过已发布的网页链接在 Safari 中打开；iPhone
+      文件预览无法保证正常使用。
+    </p>
+  </noscript>
+  <main>
+    <header>
+      <div>
+        <div class="tag">BLOOD ON THE CLOCKTOWER</div>
+        <h1>钟楼手记</h1>
+        <p>把说法留下，把判断留给自己。</p>
+      </div>
+      <div>
+        <span id="save">准备就绪</span>
+        <div class="bar"><button id="reset">新开一局</button></div>
+      </div>
+    </header>
+    <div id="recordPage">
+      <section>
+        <h2>开局设置</h2>
+        <div class="bar" style="margin-bottom: 14px">
+          <label>
+            本局剧本
+            <select id="preset"></select>
+          </label>
+          <button id="usePreset" class="primary">使用此剧本</button>
+          <button id="openManager">管理剧本</button>
+          <span id="gameScriptStatus" class="small"></span>
+        </div>
+        <div class="setup">
+          <label>
+            我的座位
+            <select id="me"></select>
+          </label>
+        </div>
+        <div class="bar" style="margin-top: 14px">
+          <label>
+            玩家人数
+            <select id="count" aria-label="玩家人数"></select>
+          </label>
+          <button id="add">＋ 添加座位</button>
+          <span class="small">角色声明不代表真实身份；猜测由你自行记录。</span>
+        </div>
+        <h3>本局角色构成</h3>
+        <p class="small">填写说书人告知的初始人数；不知道的项目留空，确认没有则填 0。</p>
+        <div id="composition" class="grid">
+          <div>
+            <strong>善良阵营</strong>
+            <label>
+              镇民人数
+              <input
+                id="townsfolkCount"
+                type="number"
+                min="0"
+                max="30"
+                step="1"
+                inputmode="numeric"
+                placeholder="未确认"
+              />
+            </label>
+            <label>
+              外来者人数
+              <input
+                id="outsiderCount"
+                type="number"
+                min="0"
+                max="30"
+                step="1"
+                inputmode="numeric"
+                placeholder="未确认"
+              />
+            </label>
+          </div>
+          <div>
+            <strong>邪恶阵营</strong>
+            <label>
+              爪牙人数
+              <input
+                id="minionCount"
+                type="number"
+                min="0"
+                max="30"
+                step="1"
+                inputmode="numeric"
+                placeholder="未确认"
+              />
+            </label>
+            <label>
+              恶魔人数
+              <input
+                id="demonCount"
+                type="number"
+                min="0"
+                max="30"
+                step="1"
+                inputmode="numeric"
+                placeholder="未确认"
+              />
+            </label>
+          </div>
+        </div>
+        <p id="compositionStatus" class="small" role="status" aria-live="polite"></p>
+      </section>
+      <section>
+        <h2>座位与角色声明</h2>
+        <p class="small">
+          为每位玩家选择猜测类型，下面会与开局人数对照。角色类型与实际阵营可能因特殊能力不同；阵营倾向仍可单独记录。
+        </p>
+        <div
+          id="guessBalance"
+          class="hint"
+          style="white-space: pre-wrap"
+          role="status"
+          aria-live="polite"
+        ></div>
+        <div id="players" class="grid"></div>
+      </section>
+      <div class="split">
+        <section>
+          <h2>每日 / 每夜信息</h2>
+          <div class="entry">
+            <div class="bar">
+              <select id="phase">
+                <option>第 1 夜</option>
+                <option>第 1 天</option>
+              </select>
+              <button id="next">下一阶段</button>
+              <select id="source"></select>
+            </div>
+            <label>
+              信息性质
+              <select id="kind">
+                <option>玩家声明</option>
+                <option>公开发生的事件</option>
+                <option>我的猜测</option>
+              </select>
+            </label>
+            <textarea
+              id="note"
+              placeholder="例如：3 号说自己收到的信息是……；今天谁被提名、处决……"
+              style="margin-top: 10px"
+            ></textarea>
+            <button class="primary" id="record">记录信息</button>
+          </div>
+          <div id="logs"></div>
+        </section>
+        <section>
+          <h2>我的推理笔记</h2>
+          <label>
+            我的整体推理
+            <textarea
+              id="theory"
+              placeholder="候选世界、关键矛盾、下一步想问谁……"
+              style="min-height: 150px"
+            ></textarea>
+          </label>
+        </section>
+      </div>
+      <section>
+        <h2>座位身份汇总</h2>
+        <p class="small">优先显示角色声明；没有声明时显示你的猜测。声明不代表身份已确认。</p>
+        <div id="summary" style="white-space: pre-wrap; line-height: 2"></div>
+      </section>
+      <section>
+        <h2>总结信息</h2>
+        <p class="small">
+          自动整理已保存的本局记录，复制后可粘贴给 AI 分析。每日／每夜信息请先点击“记录信息”。
+        </p>
+        <textarea
+          id="analysisSummary"
+          aria-label="总结信息"
+          readonly
+          style="min-height: 260px"
+        ></textarea>
+        <div class="bar" style="margin-top: 12px">
+          <button id="refreshSummary">更新总结</button>
+          <button id="copySummary" class="primary">一键复制</button>
+          <span id="summaryStatus" class="small" role="status" aria-live="polite"></span>
+          <span id="copyStatus" class="small" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+    </div>
+    <div id="managerPage" hidden>
+      <section>
+        <div class="bar" style="justify-content: space-between">
+          <h2>剧本管理</h2>
+          <button id="backToRecords">← 返回记录</button>
+        </div>
+        <p class="small">
+          修改会先保存在本机。要与其他设备共享，请导出共享剧本库，将文件更新到 GitHub
+          仓库并等待发布。游戏笔记不会随剧本库上传。
+        </p>
+        <div class="bar">
+          <select id="managePreset" aria-label="要编辑的剧本"></select>
+          <button id="newPreset">＋ 新增剧本</button>
+          <button id="loadEditor">载入所选剧本</button>
+        </div>
+        <label>
+          剧本名称
+          <input id="presetName" maxlength="60" placeholder="输入剧本名称" />
+        </label>
+        <label>
+          校对角色名称（每行一个）
+          <textarea
+            id="roleList"
+            style="min-height: 140px"
+            placeholder="粘贴 AI 提取的角色名，每行一个"
+          ></textarea>
+        </label>
+        <button id="savePreset" class="primary">保存剧本与角色</button>
+        <div class="bar" style="margin-top: 12px">
+          <button id="exportLibrary">导出共享剧本库</button>
+          <button id="syncLibrary">检查共享剧本更新</button>
+          <button id="adoptLibrary">采用仓库版本</button>
+        </div>
+        <p id="libraryStatus" class="small" role="status" aria-live="polite"></p>
+        <p id="roleStatus" class="small" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+    <p class="small">
+      网页从仓库的 scripts.js
+      读取共享剧本。新增或修改剧本后，请更新仓库中的该文件；其他设备打开网页即可获取更新。游戏记录保存在当前浏览器，可复制总结信息给
+      AI 分析或自行留存。
+    </p>
+  </main>
+  <script src="scripts.js"></script>
+  <script>
+    'use strict';
+    const key = 'clocktower-notes-v1',
+      $ = (id) => document.getElementById(id),
+      esc = (s) =>
+        String(s ?? '').replace(
+          /[&<>"']/g,
+          (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
+        );
+    const fresh = () => ({
+      composition: { townsfolk: '', outsider: '', minion: '', demon: '' },
+      title: '',
+      script: '',
+      me: '',
+      theory: '',
+      phase: 0,
+      players: Array.from({ length: 10 }, (_, i) => ({
+        name: '',
+        claim: '',
+        guess: '',
+        guessType: '未知',
+        lean: '未知',
+        status: '存活',
+        note: '',
+      })),
+      logs: [],
+      roles: [],
+      roleDraft: '',
+      customPresets: {},
+      presetNames: {},
+      activePreset: '',
+    });
+    let state = fresh();
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) state = validate(JSON.parse(saved));
+    } catch (e) {
+      $('save').textContent = '未载入旧数据，请检查备份';
+    }
 
-try{const embedded=document.getElementById('portableLibrary');if(embedded){const lib=JSON.parse(embedded.textContent);const checked=validate({...fresh(),customPresets:lib.customPresets,presetNames:lib.presetNames});state.customPresets={...checked.customPresets,...state.customPresets};state.presetNames={...checked.presetNames,...state.presetNames}}}catch(e){$('save').textContent='内置剧本读取失败，请检查备份'}
-function validate(v){if(!v||!Array.isArray(v.players)||!Array.isArray(v.logs)||v.players.length>30||!v.players.length)throw Error('格式不正确');for(const p of v.players)if(!p||['name','claim','guess','lean','status','note'].some(k=>typeof p[k]!=='string'))throw Error('玩家格式不正确');if(v.logs.some(l=>!l||['phase','source','kind','text'].some(k=>typeof l[k]!=='string')))throw Error('记录格式不正确');return{title:String(v.title||''),script:String(v.script||''),me:String(v.me||''),theory:String(v.theory||''),phase:Number.isInteger(v.phase)&&v.phase>=0&&v.phase<200?v.phase:0,players:v.players,logs:v.logs,roles:Array.isArray(v.roles)?v.roles.filter(x=>typeof x==='string'):[],roleDraft:String(v.roleDraft||''),activePreset:String(v.activePreset||''),presetNames:Object.fromEntries(Object.entries(v.presetNames||{}).filter(([k,n])=>/^(?:[0-9]+|s[0-9]+)$/.test(k)&&typeof n==='string'&&n.trim()&&n.length<=60)),customPresets:Object.fromEntries(Object.entries(v.customPresets||{}).filter(([k,a])=>/^(?:[0-9]+|s[0-9]+)$/.test(k)&&Array.isArray(a)&&a.every(r=>typeof r==='string'&&r.length<=40)))}}
-function save(){try{localStorage.setItem(key,JSON.stringify(state));$('save').textContent='已自动保存'}catch(e){$('save').textContent='保存失败，请导出备份'}}
-const phaseName=n=>`第 ${Math.floor(n/2)+1} ${n%2?'天':'夜'}`;
-function options(a,v){return a.map(x=>`<option ${x===v?'selected':''}>${esc(x)}</option>`).join('')}
-function render(){renderPresetNames();$('roleList').value=state.roleDraft;for(const k of ['theory'])$(k).value=state[k];$('players').innerHTML=state.players.map((p,i)=>`<article class="card ${p.status==='死亡'?'dead':''}"><div class="row"><span class="seat">${i+1}</span><input aria-label="${i+1}号玩家姓名" data-i="${i}" data-k="name" value="${esc(p.name)}" placeholder="玩家姓名"><button data-remove="${i}" title="删除座位">×</button></div>${[['claim','角色声明']].map(([k,t])=>`<label>${t}<input data-i="${i}" data-k="${k}" value="${esc(p[k])}" placeholder="可填多个候选角色"></label>`).join('')}<label>我的角色猜测<select data-i="${i}" data-k="guess"><option value="">未知</option>${[...new Set([...state.roles,...(p.guess?[p.guess]:[])])].map(r=>`<option value="${esc(r)}" ${r===p.guess?'selected':''}>${esc(r)}</option>`).join('')}</select></label><div class="row"><label>阵营倾向<select data-i="${i}" data-k="lean">${options(['未知','偏善良','偏邪恶'],p.lean)}</select></label><label>状态<select data-i="${i}" data-k="status">${options(['存活','死亡'],p.status)}</select></label></div><label>依据 / 私聊笔记<textarea data-i="${i}" data-k="note">${esc(p.note)}</textarea></label></article>`).join('');selectors();renderLogs();renderSummary()}
-function selectors(){$("count").innerHTML=Array.from({length:30},(_,i)=>`<option value="${i+1}">${i+1} 人</option>`).join('');$("count").value=state.players.length;const a=state.players.map((p,i)=>`<option value="${i+1}">${i+1} 号${p.name?' · '+esc(p.name):''}</option>`).join('');const old=$('source').value;$('me').innerHTML='<option value="">未选择</option>'+a;$('me').value=state.me;$('source').innerHTML='<option value="全场">全场 / 未注明</option>'+a;$('source').value=[...$('source').options].some(o=>o.value===old)?old:'全场';$('phase').innerHTML=Array.from({length:state.phase+2},(_,i)=>`<option value="${i}">${phaseName(i)}</option>`).join('');$('phase').value=state.phase}
-function renderSummary(){$('summary').textContent=state.players.map((p,i)=>{const claim=p.claim.trim(),guess=p.guess.trim();return (i+1)+'号：'+(claim?claim+(guess?'（推测：'+guess+'）':''):(guess?'推测'+guess:'未知'))}).join('\n')}
-function renderLogs(){$('logs').innerHTML=state.logs.length?state.logs.map((l,i)=>`<div class="log"><button data-del="${i}">删除</button><strong>${esc(l.phase)} · ${esc(l.source)}</strong><div class="small">${esc(l.kind)}</div><p>${esc(l.text)}</p></div>`).reverse().join(''):'<p class="empty">还没有记录。从第一条角色说法开始。</p>'}
-for(const k of ['theory','me'])$(k).addEventListener('input',()=>{state[k]=$(k).value;save()});$('players').addEventListener('input',e=>{const t=e.target;if(!t.dataset.k)return;state.players[+t.dataset.i][t.dataset.k]=t.value;save();renderSummary();if(t.dataset.k==='name')selectors();if(t.dataset.k==='status')t.closest('.card').classList.toggle('dead',t.value==='死亡')});$('players').addEventListener('click',e=>{const i=e.target.dataset.remove;if(i===undefined)return;if(state.players.length===1)return;if(confirm('删除这个座位？后续座位将重新编号，历史信息保留原来的文字。')){state.players.splice(+i,1);state.me='';save();render()}});$('count').onchange=()=>{const n=+$('count').value;if(n<state.players.length&&!confirm('减少人数会删除末尾座位及其笔记，历史信息保留原文字。确定继续？')){$('count').value=state.players.length;return}while(state.players.length<n)state.players.push({name:'',claim:'',guess:'',lean:'未知',status:'存活',note:''});state.players.length=n;if(+state.me>n)state.me='';save();render()};$('add').onclick=()=>{if(state.players.length>=30)return;state.players.push({name:'',claim:'',guess:'',lean:'未知',status:'存活',note:''});save();render()};$('phase').onchange=()=>{state.phase=+$('phase').value;save()};$('next').onclick=()=>{state.phase++;save();selectors()};$('record').onclick=()=>{const text=$('note').value.trim();if(!text)return;const s=$('source').value;state.logs.push({phase:phaseName(+$('phase').value),source:s==='全场'?'全场':`${s} 号${state.players[+s-1].name?' · '+state.players[+s-1].name:''}`,kind:$('kind').value,text});$('note').value='';save();renderLogs()};$('logs').onclick=e=>{if(e.target.dataset.del!==undefined&&confirm('删除这条记录？')){state.logs.splice(+e.target.dataset.del,1);save();renderLogs()}};function analysisDocument(){const lines=['# 血染钟楼 · 玩家推理记录','','说明：以下是玩家视角的记录。角色声明、猜测和阵营倾向均不等于已确认的真实身份。信息可能受到醉酒、中毒、虚假发言或特殊规则影响。','','## 本局概况','','剧本：'+(state.activePreset?presetLabel(state.activePreset):'未选择'),'我的座位：'+(state.me?state.me+'号':'未填写'),'当前阶段：'+phaseName(state.phase),'本局可选角色：'+(state.roles.join('、')||'未填写'),'','## 玩家记录',''];state.players.forEach((p,i)=>{lines.push('### '+(i+1)+'号'+(p.name?' · '+p.name:''),'','- 状态：'+p.status,'- 角色声明：'+(p.claim||'未知'),'- 我的角色猜测：'+(p.guess||'未知'),'- 我的阵营倾向：'+p.lean,'','依据 / 私聊笔记：',p.note||'未记录','')});lines.push('## 每日 / 每夜信息','');if(!state.logs.length)lines.push('未记录','');state.logs.forEach((l,i)=>lines.push('### 信息 '+(i+1)+' · '+l.phase,'','来源：'+l.source,'信息性质：'+l.kind,'',l.text,''));lines.push('## 我的整体推理','',state.theory||'未记录','','---','','## 用于恢复记录的完整数据','','以下数据供本工具导入恢复使用，可能包含其他已保存剧本。','', '<!-- CLOCKTOWER_DATA',JSON.stringify(state,null,2),'CLOCKTOWER_DATA -->');return lines.join('\n')}
-$('export').onclick=()=>{const url=URL.createObjectURL(new Blob([analysisDocument()],{type:'text/markdown;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='钟楼手记-分析记录.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};$('import').onclick=()=>$('file').click();$('file').onchange=async()=>{const f=$('file').files[0];if(!f)return;try{const raw=await f.text(),embedded=raw.match(/<!-- CLOCKTOWER_DATA\r?\n([\s\S]*?)\r?\nCLOCKTOWER_DATA -->/);const v=validate(JSON.parse(embedded?embedded[1]:raw));if(confirm('用导入文件替换当前记录及剧本库？建议先导出当前记录。')){state=v;save();render()}}catch(e){alert('无法导入：请选择本工具导出的分析记录或旧版 JSON 备份。')}finally{$('file').value=''}};$('reset').onclick=()=>{if(confirm('清空当前局并开始新局？请先导出需要保留的记录。')){const savedPresets=state.customPresets,savedNames=state.presetNames;state=fresh();state.customPresets=savedPresets;state.presetNames=savedNames;save();render()}};$('print').onclick=()=>window.print();
-const photoPresets={"1":["修行者","图书管理员","店小二","共情者","郎中","占卜师","送葬者","僧侣","博学者","变脸师","艺术家","悟道者","守鸦人","理发师","逆臣","帽匠","酒鬼","洗脑师","女巫","提线木偶","红唇女郎","小恶魔","诺·达鲺","混沌","涡流"],"2":["事务官","贵族","水手","女祭司","郎中","占卜师","锦衣卫","僧侣","博学者","哲学家","渔夫","女裁缝","杂耍艺人","魔像","解谜大师","酒鬼","管家","精神病患者","狐媚娘","鹰身女妖","哥布林","痢蛭","卡扎力","奥赫","牙噶巴卜"],"s1791685088361":["阴阳师","钦天监","侍女","村夫","郎中","道士","知府","调香师","博物学家","鸩","车夫","歌伶","食人族","迷沙陷阱","食人魔","月之子","书童","玩偶","鹰身女妖","教父","孟婆","小恶魔","亡骨魔","奥赫","诺·达鲺"],"s1791685160747":["铁匠","织工","舞蛇人","治安官","工程师","舰队司令","机修工","公主","小说家","罂粟种植者","食人族","农夫","无神论者","理发师","魔像","梦游者","巫女","麻脸巫婆","狐媚娘","精神病患者","麻醉师","哈迪寂亚","朋友游戏","亡骨魔"],"s1791685278347":["钦天监","阴阳师","店小二","厨师","和尚","道士","舞狮人","赌徒","歌伶","风水师","方士","半仙","提刑官","酒保","酒鬼","入殓师","煞星","酿酒师","蛊雕","判官","刺客","饕餮","典狱长","梼杌","穷奇"],"s1791685390452":["守望者","罗尔夫狗","建筑师","牧师","内疚","瞭望员","瘸子","咒行者","抬棺人","占星师","歌剧演员","罗姆人","潜伏者","夜游者","着魔者","贵妇","胆小鬼","佞臣","特洛伊木马","羔羊","神秘生物","别西卜","玛门","萨麦尔","路西法"]};
-const defaultPresetNames={"1":"风雅集","2":"懦夫救星","s1791685088361":"双重疯狂","s1791685160747":"午夜俱乐部","s1791685278347":"桃之夭夭","s1791685390452":"惜墨如金"};
-function presetIds(){return [...new Set([...Object.keys(photoPresets),...Object.keys(state.presetNames),...Object.keys(state.customPresets)])]}
-function presetLabel(id){return state.presetNames[id]||defaultPresetNames[id]||'未命名剧本'}
-function presetRoles(id){return state.customPresets[id]||photoPresets[id]||[]}
-function renderPresetNames(){const game=$('preset').value||state.activePreset,editing=$('managePreset').value;const html=presetIds().map(id=>'<option value="'+id+'">'+esc(presetLabel(id))+'</option>').join('');$('preset').innerHTML='<option value="">选择本局剧本</option>'+html;$('preset').value=game;$('managePreset').innerHTML='<option value="">选择要编辑的剧本</option>'+html;$('managePreset').value=editing;$('gameScriptStatus').textContent=state.activePreset?'当前使用：'+presetLabel(state.activePreset)+' · '+state.roles.length+' 个角色':'尚未选择本局剧本'}
-function loadEditor(){const id=$('managePreset').value;if(!id)return;if(state.roleDraft.trim()&&!confirm('载入所选剧本会替换校对框中的内容，继续？'))return;$('presetName').value=presetLabel(id);state.roleDraft=presetRoles(id).join('\n');$('roleList').value=state.roleDraft;save();$('roleStatus').textContent='已载入，可修改名称和角色后保存。'}
-$('loadEditor').onclick=loadEditor;
-$('newPreset').onclick=()=>{if(state.roleDraft.trim()&&!confirm('开始新增剧本会清空当前编辑框，请确认需要的修改已保存。'))return;$('managePreset').value='';$('presetName').value='';$('roleList').value='';state.roleDraft='';save();$('roleStatus').textContent='填写新剧本名称和角色，然后点击保存。';$('presetName').focus()};
-$('roleList').oninput=()=>{state.roleDraft=$('roleList').value;save()};
-$('savePreset').onclick=()=>{const name=$('presetName').value.trim(),roles=[...new Set($('roleList').value.split(/[\n\r,，;；]+/).map(r=>r.trim()).filter(Boolean))];if(!name||!roles.length||roles.some(r=>r.length>40)){alert('请填写剧本名称，并填写角色名，每行一个（不含技能说明）。');return}let id=$('managePreset').value;if(!id){let n=Date.now();while(presetIds().includes('s'+n))n++;id='s'+n}state.presetNames[id]=name;state.customPresets[id]=roles;state.roleDraft=roles.join('\n');save();renderPresetNames();$('managePreset').value=id;$('roleList').value=state.roleDraft;$('roleStatus').textContent='已在本机保存「'+name+'」及 '+roles.length+' 个角色。共享给其他设备需导出剧本库并更新仓库。'};
-$('usePreset').onclick=()=>{const id=$('preset').value;if(!id){alert('请选择本局剧本。');return}state.roles=[...presetRoles(id)];state.activePreset=id;save();render()};
+    function validate(v) {
+      if (
+        !v ||
+        !Array.isArray(v.players) ||
+        !Array.isArray(v.logs) ||
+        v.players.length > 30 ||
+        !v.players.length
+      )
+        throw Error('格式不正确');
+      for (const p of v.players)
+        if (
+          !p ||
+          ['name', 'claim', 'guess', 'lean', 'status', 'note'].some((k) => typeof p[k] !== 'string')
+        )
+          throw Error('玩家格式不正确');
+      if (
+        v.logs.some(
+          (l) => !l || ['phase', 'source', 'kind', 'text'].some((k) => typeof l[k] !== 'string'),
+        )
+      )
+        throw Error('记录格式不正确');
+      return {
+        composition: Object.fromEntries(
+          ['townsfolk', 'outsider', 'minion', 'demon'].map((k) => [
+            k,
+            /^(?:[0-9]|[12][0-9]|30)$/.test(String(v.composition?.[k] ?? ''))
+              ? String(v.composition[k])
+              : '',
+          ]),
+        ),
+        title: String(v.title || ''),
+        script: String(v.script || ''),
+        me: String(v.me || ''),
+        theory: String(v.theory || ''),
+        phase: Number.isInteger(v.phase) && v.phase >= 0 && v.phase < 200 ? v.phase : 0,
+        players: v.players.map((p) => ({
+          ...p,
+          guessType: ['镇民', '外来者', '爪牙', '恶魔'].includes(p.guessType)
+            ? p.guessType
+            : '未知',
+        })),
+        logs: v.logs,
+        roles: Array.isArray(v.roles) ? v.roles.filter((x) => typeof x === 'string') : [],
+        roleDraft: String(v.roleDraft || ''),
+        activePreset: String(v.activePreset || ''),
+        presetNames: Object.fromEntries(
+          Object.entries(v.presetNames || {}).filter(
+            ([k, n]) =>
+              /^(?:[0-9]+|s[0-9]+)$/.test(k) && typeof n === 'string' && n.trim() && n.length <= 60,
+          ),
+        ),
+        customPresets: Object.fromEntries(
+          Object.entries(v.customPresets || {}).filter(
+            ([k, a]) =>
+              /^(?:[0-9]+|s[0-9]+)$/.test(k) &&
+              Array.isArray(a) &&
+              a.every((r) => typeof r === 'string' && r.length <= 40),
+          ),
+        ),
+      };
+    }
+    function save() {
+      renderGuessBalance();
+      renderCompositionStatus();
+      renderAnalysisSummary();
+      try {
+        localStorage.setItem(key, JSON.stringify(state));
+        $('save').textContent = '已自动保存';
+      } catch (e) {
+        $('save').textContent = '保存失败，请复制总结信息留存';
+      }
+    }
+    const phaseName = (n) => `第 ${Math.floor(n / 2) + 1} ${n % 2 ? '天' : '夜'}`;
+    function guessBalanceText() {
+      const pairs = [
+          ['townsfolk', '镇民'],
+          ['outsider', '外来者'],
+          ['minion', '爪牙'],
+          ['demon', '恶魔'],
+        ],
+        counts = Object.fromEntries(
+          pairs.map(([k, label]) => [k, state.players.filter((p) => p.guessType === label).length]),
+        );
+      const describe = (label, n, target) =>
+        label +
+        '：已猜 ' +
+        n +
+        ' 人 / 开局 ' +
+        (target === '' ? '未确认' : target + ' 人') +
+        (target === ''
+          ? ''
+          : n > Number(target)
+            ? '（超出 ' + (n - Number(target)) + ' 人）'
+            : n < Number(target)
+              ? '（尚缺 ' + (Number(target) - n) + ' 人）'
+              : '（人数符合）');
+      const grouped = (a, b) =>
+        state.composition[a] === '' || state.composition[b] === ''
+          ? ''
+          : String(Number(state.composition[a]) + Number(state.composition[b]));
+      return [
+        '角色猜测人数对照（包含死亡玩家）：',
+        ...pairs.map(([k, label]) => describe(label, counts[k], state.composition[k])),
+        describe(
+          '善良角色合计',
+          counts.townsfolk + counts.outsider,
+          grouped('townsfolk', 'outsider'),
+        ),
+        describe('邪恶角色合计', counts.minion + counts.demon, grouped('minion', 'demon')),
+        '未确定类型：' +
+          state.players.filter((p) => !p.guessType || p.guessType === '未知').length +
+          ' 人',
+        '此处按猜测的角色类型统计，并非确认的实际阵营。',
+      ].join('\n');
+    }
+    function renderGuessBalance() {
+      $('guessBalance').textContent = guessBalanceText();
+    }
+    function compositionText() {
+      return (
+        '说书人告知的初始角色构成：' +
+        [
+          ['townsfolk', '镇民'],
+          ['outsider', '外来者'],
+          ['minion', '爪牙'],
+          ['demon', '恶魔'],
+        ]
+          .map(
+            ([k, label]) =>
+              label + ' ' + (state.composition[k] === '' ? '未确认' : state.composition[k] + ' 人'),
+          )
+          .join('；')
+      );
+    }
+    function renderCompositionStatus() {
+      const values = Object.values(state.composition),
+        known = values.filter((v) => v !== '');
+      const sum = known.reduce((s, v) => s + Number(v), 0);
+      $('compositionStatus').textContent =
+        known.length === 4
+          ? '已填写合计 ' +
+            sum +
+            ' 人' +
+            (sum === state.players.length
+              ? '，与玩家人数一致。'
+              : '；与当前 ' + state.players.length + ' 位玩家不同，请核对说书人的说明。')
+          : '已填写 ' + known.length + ' 项，共 ' + sum + ' 人；其余未确认。';
+    }
+    function renderComposition() {
+      for (const k of ['townsfolk', 'outsider', 'minion', 'demon'])
+        $(k + 'Count').value = state.composition[k];
+      renderCompositionStatus();
+    }
+    for (const k of ['townsfolk', 'outsider', 'minion', 'demon'])
+      $(k + 'Count').addEventListener('input', () => {
+        const field = $(k + 'Count');
+        if (field.value !== '' && !/^(?:[0-9]|[12][0-9]|30)$/.test(field.value)) {
+          field.setCustomValidity('请填写 0 到 30 的整数');
+          return;
+        }
+        field.setCustomValidity('');
+        state.composition[k] = field.value;
+        save();
+      });
+    function options(a, v) {
+      return a.map((x) => `<option ${x === v ? 'selected' : ''}>${esc(x)}</option>`).join('');
+    }
+    function render() {
+      renderPresetNames();
+      renderComposition();
+      $('roleList').value = state.roleDraft;
+      for (const k of ['theory']) $(k).value = state[k];
+      $('players').innerHTML = state.players
+        .map(
+          (p, i) =>
+            `<article class="card ${p.status === '死亡' ? 'dead' : ''}"><div class="row"><span class="seat">${i + 1}</span><input aria-label="${i + 1}号玩家姓名" data-i="${i}" data-k="name" value="${esc(p.name)}" placeholder="玩家姓名"><button data-remove="${i}" title="删除座位">×</button></div>${[['claim', '角色声明']].map(([k, t]) => `<label>${t}<input data-i="${i}" data-k="${k}" value="${esc(p[k])}" placeholder="可填多个候选角色"></label>`).join('')}<label>我的角色猜测<select data-i="${i}" data-k="guess"><option value="">未知</option>${[...new Set([...state.roles, ...(p.guess ? [p.guess] : [])])].map((r) => `<option value="${esc(r)}" ${r === p.guess ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select></label><label>猜测角色类型<select data-i="${i}" data-k="guessType">${options(['未知', '镇民', '外来者', '爪牙', '恶魔'], p.guessType || '未知')}</select></label><div class="row"><label>阵营倾向<select data-i="${i}" data-k="lean">${options(['未知', '偏善良', '偏邪恶'], p.lean)}</select></label><label>状态<select data-i="${i}" data-k="status">${options(['存活', '死亡'], p.status)}</select></label></div><label>依据 / 私聊笔记<textarea data-i="${i}" data-k="note">${esc(p.note)}</textarea></label></article>`,
+        )
+        .join('');
+      selectors();
+      renderLogs();
+      renderSummary();
+      renderGuessBalance();
+      renderAnalysisSummary();
+    }
+    function selectors() {
+      $('count').innerHTML = Array.from(
+        { length: 30 },
+        (_, i) => `<option value="${i + 1}">${i + 1} 人</option>`,
+      ).join('');
+      $('count').value = state.players.length;
+      const a = state.players
+        .map(
+          (p, i) =>
+            `<option value="${i + 1}">${i + 1} 号${p.name ? ' · ' + esc(p.name) : ''}</option>`,
+        )
+        .join('');
+      const old = $('source').value;
+      $('me').innerHTML = '<option value="">未选择</option>' + a;
+      $('me').value = state.me;
+      $('source').innerHTML = '<option value="全场">全场 / 未注明</option>' + a;
+      $('source').value = [...$('source').options].some((o) => o.value === old) ? old : '全场';
+      $('phase').innerHTML = Array.from(
+        { length: state.phase + 2 },
+        (_, i) => `<option value="${i}">${phaseName(i)}</option>`,
+      ).join('');
+      $('phase').value = state.phase;
+    }
+    function renderSummary() {
+      $('summary').textContent = state.players
+        .map((p, i) => {
+          const claim = p.claim.trim(),
+            guess = p.guess.trim();
+          return (
+            i +
+            1 +
+            '号：' +
+            (claim
+              ? claim + (guess ? '（推测：' + guess + '）' : '')
+              : guess
+                ? '推测' + guess
+                : '未知')
+          );
+        })
+        .join('\n');
+    }
+    function renderLogs() {
+      $('logs').innerHTML = state.logs.length
+        ? state.logs
+            .map(
+              (l, i) =>
+                `<div class="log"><button data-del="${i}">删除</button><strong>${esc(l.phase)} · ${esc(l.source)}</strong><div class="small">${esc(l.kind)}</div><p>${esc(l.text)}</p></div>`,
+            )
+            .reverse()
+            .join('')
+        : '<p class="empty">还没有记录。从第一条角色说法开始。</p>';
+    }
+    for (const k of ['theory', 'me'])
+      $(k).addEventListener('input', () => {
+        state[k] = $(k).value;
+        save();
+      });
+    $('players').addEventListener('input', (e) => {
+      const t = e.target;
+      if (!t.dataset.k) return;
+      state.players[+t.dataset.i][t.dataset.k] = t.value;
+      save();
+      renderSummary();
+      if (t.dataset.k === 'name') selectors();
+      if (t.dataset.k === 'status') t.closest('.card').classList.toggle('dead', t.value === '死亡');
+    });
+    $('players').addEventListener('click', (e) => {
+      const i = e.target.dataset.remove;
+      if (i === undefined) return;
+      if (state.players.length === 1) return;
+      if (confirm('删除这个座位？后续座位将重新编号，历史信息保留原来的文字。')) {
+        state.players.splice(+i, 1);
+        state.me = '';
+        save();
+        render();
+      }
+    });
+    $('count').onchange = () => {
+      const n = +$('count').value;
+      if (
+        n < state.players.length &&
+        !confirm('减少人数会删除末尾座位及其笔记，历史信息保留原文字。确定继续？')
+      ) {
+        $('count').value = state.players.length;
+        return;
+      }
+      while (state.players.length < n)
+        state.players.push({
+          name: '',
+          claim: '',
+          guess: '',
+          guessType: '未知',
+          lean: '未知',
+          status: '存活',
+          note: '',
+        });
+      state.players.length = n;
+      if (+state.me > n) state.me = '';
+      save();
+      render();
+    };
+    $('add').onclick = () => {
+      if (state.players.length >= 30) return;
+      state.players.push({
+        name: '',
+        claim: '',
+        guess: '',
+        guessType: '未知',
+        lean: '未知',
+        status: '存活',
+        note: '',
+      });
+      save();
+      render();
+    };
+    $('phase').onchange = () => {
+      state.phase = +$('phase').value;
+      save();
+    };
+    $('next').onclick = () => {
+      state.phase++;
+      save();
+      selectors();
+    };
+    $('record').onclick = () => {
+      const text = $('note').value.trim();
+      if (!text) return;
+      const s = $('source').value;
+      state.logs.push({
+        phase: phaseName(+$('phase').value),
+        source:
+          s === '全场'
+            ? '全场'
+            : `${s} 号${state.players[+s - 1].name ? ' · ' + state.players[+s - 1].name : ''}`,
+        kind: $('kind').value,
+        text,
+      });
+      $('note').value = '';
+      save();
+      renderLogs();
+    };
+    $('logs').onclick = (e) => {
+      if (e.target.dataset.del !== undefined && confirm('删除这条记录？')) {
+        state.logs.splice(+e.target.dataset.del, 1);
+        save();
+        renderLogs();
+      }
+    };
+    function renderAnalysisSummary() {
+      const box = $('analysisSummary');
+      if (!box) return;
+      box.value = analysisDocument(false);
+      $('copyStatus').textContent = '';
+      $('summaryStatus').textContent =
+        '已根据最新保存的记录更新，可以复制' +
+        ($('note').value.trim() ? '；每日／每夜输入框还有内容未记录，请先点击记录信息。' : '。');
+    }
+    $('refreshSummary').onclick = () => {
+      renderAnalysisSummary();
+      $('summaryStatus').textContent += '（刚刚检查）';
+    };
+    $('note').addEventListener('input', () => {
+      $('summaryStatus').textContent = $('note').value.trim()
+        ? '每日／每夜输入框还有内容未记录，请先点击记录信息，再复制总结。'
+        : '已根据最新保存的记录更新，可以复制。';
+    });
+    $('copySummary').onclick = async () => {
+      renderAnalysisSummary();
+      const box = $('analysisSummary');
+      try {
+        if (!navigator.clipboard?.writeText) throw Error('clipboard unavailable');
+        await navigator.clipboard.writeText(box.value);
+        $('copyStatus').textContent = '已复制，可粘贴给 AI 分析';
+      } catch (e) {
+        box.focus();
+        box.select();
+        box.setSelectionRange(0, box.value.length);
+        let copied = false;
+        try {
+          copied = document.execCommand('copy');
+        } catch (_) {}
+        $('copyStatus').textContent = copied
+          ? '已复制，可粘贴给 AI 分析'
+          : '请长按已选中的文字，选择复制';
+      }
+    };
+    function analysisDocument(includeRecovery = true) {
+      const lines = [
+        '# 血染钟楼 · 玩家推理记录',
+        '',
+        '说明：以下是玩家视角的记录。角色声明、猜测和阵营倾向均不等于已确认的真实身份。信息可能受到醉酒、中毒、虚假发言或特殊规则影响。',
+        '',
+        '## 本局概况',
+        '',
+        '剧本：' + (state.activePreset ? presetLabel(state.activePreset) : '未选择'),
+        '我的座位：' + (state.me ? state.me + '号' : '未填写'),
+        '当前阶段：' + phaseName(state.phase),
+        '玩家人数：' + state.players.length,
+        compositionText(),
+        guessBalanceText(),
+        '本局可选角色：' + (state.roles.join('、') || '未填写'),
+        '',
+        '## 玩家记录',
+        '',
+      ];
+      state.players.forEach((p, i) => {
+        lines.push(
+          '### ' + (i + 1) + '号' + (p.name ? ' · ' + p.name : ''),
+          '',
+          '- 状态：' + p.status,
+          '- 角色声明：' + (p.claim || '未知'),
+          '- 我的角色猜测：' + (p.guess || '未知'),
+          '- 猜测角色类型：' + (p.guessType || '未知'),
+          '- 我的阵营倾向：' + p.lean,
+          '',
+          '依据 / 私聊笔记：',
+          p.note || '未记录',
+          '',
+        );
+      });
+      lines.push('## 每日 / 每夜信息', '');
+      if (!state.logs.length) lines.push('未记录', '');
+      state.logs.forEach((l, i) =>
+        lines.push(
+          '### 信息 ' + (i + 1) + ' · ' + l.phase,
+          '',
+          '来源：' + l.source,
+          '信息性质：' + l.kind,
+          '',
+          l.text,
+          '',
+        ),
+      );
+      lines.push('## 我的整体推理', '', state.theory || '未记录');
+      if (includeRecovery)
+        lines.push(
+          '',
+          '---',
+          '',
+          '## 用于恢复记录的完整数据',
+          '',
+          '以下数据供本工具导入恢复使用，可能包含其他已保存剧本。',
+          '',
+          '<!-- CLOCKTOWER_DATA',
+          JSON.stringify(state, null, 2),
+          'CLOCKTOWER_DATA -->',
+        );
+      return lines.join('\n');
+    }
+    $('reset').onclick = () => {
+      if (confirm('清空当前局并开始新局？请先复制需要保留的总结信息。')) {
+        const savedPresets = state.customPresets,
+          savedNames = state.presetNames;
+        state = fresh();
+        state.customPresets = savedPresets;
+        state.presetNames = savedNames;
+        save();
+        render();
+      }
+    };
+    function presetIds() {
+      return [...new Set([...Object.keys(state.presetNames), ...Object.keys(state.customPresets)])];
+    }
+    function presetLabel(id) {
+      return state.presetNames[id] || '未命名剧本';
+    }
+    function presetRoles(id) {
+      return state.customPresets[id] || [];
+    }
+    function renderPresetNames() {
+      const game = $('preset').value || state.activePreset,
+        editing = $('managePreset').value;
+      const html = presetIds()
+        .map((id) => '<option value="' + id + '">' + esc(presetLabel(id)) + '</option>')
+        .join('');
+      $('preset').innerHTML = '<option value="">选择本局剧本</option>' + html;
+      $('preset').value = game;
+      $('managePreset').innerHTML = '<option value="">选择要编辑的剧本</option>' + html;
+      $('managePreset').value = editing;
+      $('gameScriptStatus').textContent = state.activePreset
+        ? '当前使用：' + presetLabel(state.activePreset) + ' · ' + state.roles.length + ' 个角色'
+        : '尚未选择本局剧本';
+    }
+    function loadEditor() {
+      const id = $('managePreset').value;
+      if (!id) return;
+      if (state.roleDraft.trim() && !confirm('载入所选剧本会替换校对框中的内容，继续？')) return;
+      $('presetName').value = presetLabel(id);
+      state.roleDraft = presetRoles(id).join('\n');
+      $('roleList').value = state.roleDraft;
+      save();
+      $('roleStatus').textContent = '已载入，可修改名称和角色后保存。';
+    }
+    $('loadEditor').onclick = loadEditor;
+    $('newPreset').onclick = () => {
+      if (
+        state.roleDraft.trim() &&
+        !confirm('开始新增剧本会清空当前编辑框，请确认需要的修改已保存。')
+      )
+        return;
+      $('managePreset').value = '';
+      $('presetName').value = '';
+      $('roleList').value = '';
+      state.roleDraft = '';
+      save();
+      $('roleStatus').textContent = '填写新剧本名称和角色，然后点击保存。';
+      $('presetName').focus();
+    };
+    $('roleList').oninput = () => {
+      state.roleDraft = $('roleList').value;
+      save();
+    };
+    $('savePreset').onclick = () => {
+      const name = $('presetName').value.trim(),
+        roles = [
+          ...new Set(
+            $('roleList')
+              .value.split(/[\n\r,，;；]+/)
+              .map((r) => r.trim())
+              .filter(Boolean),
+          ),
+        ];
+      if (!name || !roles.length || roles.some((r) => r.length > 40)) {
+        alert('请填写剧本名称，并填写角色名，每行一个（不含技能说明）。');
+        return;
+      }
+      let id = $('managePreset').value;
+      if (!id) {
+        let n = Date.now();
+        while (presetIds().includes('s' + n)) n++;
+        id = 's' + n;
+      }
+      state.presetNames[id] = name;
+      state.customPresets[id] = roles;
+      state.roleDraft = roles.join('\n');
+      save();
+      renderPresetNames();
+      $('managePreset').value = id;
+      $('roleList').value = state.roleDraft;
+      $('roleStatus').textContent =
+        '已在本机保存「' +
+        name +
+        '」及 ' +
+        roles.length +
+        ' 个角色。共享给其他设备需导出剧本库并更新仓库。';
+    };
+    $('usePreset').onclick = () => {
+      const id = $('preset').value;
+      if (!id) {
+        alert('请选择本局剧本。');
+        return;
+      }
+      state.roles = [...presetRoles(id)];
+      state.activePreset = id;
+      save();
+      render();
+    };
 
-$('portable').onclick=()=>{const clone=document.documentElement.cloneNode(true);clone.querySelector('#portableLibrary')?.remove();const embedded=document.createElement('script');embedded.id='portableLibrary';embedded.type='application/json';embedded.textContent=JSON.stringify({customPresets:state.customPresets,presetNames:state.presetNames}).replace(/</g,'\u003c');const mainScript=clone.querySelector('script');mainScript.parentNode.insertBefore(embedded,mainScript);clone.querySelector('#managerPage').hidden=true;clone.querySelector('#recordPage').hidden=false;clone.querySelector('#roleList').textContent='';clone.querySelector('#theory').textContent='';clone.querySelector('#note').textContent='';clone.querySelector('#players').innerHTML='';clone.querySelector('#logs').innerHTML='';clone.querySelector('#summary').textContent='';const url=URL.createObjectURL(new Blob(['<!doctype html>\n'+clone.outerHTML],{type:'text/html;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='钟楼手记-含已保存剧本.html';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('save').textContent='已生成含剧本的 HTML；请把新下载的文件传到手机。'};
-function showPage(manager){$('recordPage').hidden=manager;$('managerPage').hidden=!manager;window.scrollTo(0,0)}
-$('openManager').onclick=()=>showPage(true);
-$('backToRecords').onclick=()=>{renderPresetNames();showPage(false)};
-'use strict';
-function validateLibrary(value){if(value?.schemaVersion!==1||!Array.isArray(value.scripts)||value.scripts.length>500)throw Error('剧本库格式不正确');const ids=new Set();return value.scripts.map(s=>{if(!s||typeof s.id!=='string'||!/^(?:[0-9]+|s[0-9]+)$/.test(s.id)||ids.has(s.id)||typeof s.name!=='string'||!s.name.trim()||s.name.length>60||!Array.isArray(s.roles)||!s.roles.length||s.roles.length>300||s.roles.some(r=>typeof r!=='string'||!r.trim()||r.length>40))throw Error('剧本条目格式不正确');ids.add(s.id);return{id:s.id,name:s.name.trim(),roles:[...new Set(s.roles.map(r=>r.trim()))]}})}
-function libraryFingerprint(name,roles){return JSON.stringify([name,roles])}
-function mergeLibrary(current,scripts,baseline,force=false){const names={...current.presetNames},roles={...current.customPresets},next={...baseline},conflicts=[];for(const item of scripts){const id=item.id,incoming=libraryFingerprint(item.name,item.roles),hasLocal=Object.hasOwn(names,id)||Object.hasOwn(roles,id),local=libraryFingerprint(names[id]||'',roles[id]||[]);if(force||!hasLocal||local===incoming||baseline[id]===local){names[id]=item.name;roles[id]=[...item.roles];next[id]=incoming}else conflicts.push(id)}return{presetNames:names,customPresets:roles,baseline:next,conflicts}}
+    function showPage(manager) {
+      $('recordPage').hidden = manager;
+      $('managerPage').hidden = !manager;
+      window.scrollTo(0, 0);
+    }
+    $('openManager').onclick = () => showPage(true);
+    $('backToRecords').onclick = () => {
+      renderPresetNames();
+      showPage(false);
+    };
+    ('use strict');
+    function validateLibrary(value) {
+      if (value?.schemaVersion !== 1 || !Array.isArray(value.scripts) || value.scripts.length > 500)
+        throw Error('剧本库格式不正确');
+      const ids = new Set();
+      return value.scripts.map((s) => {
+        if (
+          !s ||
+          typeof s.id !== 'string' ||
+          !/^(?:[0-9]+|s[0-9]+)$/.test(s.id) ||
+          ids.has(s.id) ||
+          typeof s.name !== 'string' ||
+          !s.name.trim() ||
+          s.name.length > 60 ||
+          !Array.isArray(s.roles) ||
+          !s.roles.length ||
+          s.roles.length > 300 ||
+          s.roles.some((r) => typeof r !== 'string' || !r.trim() || r.length > 40)
+        )
+          throw Error('剧本条目格式不正确');
+        ids.add(s.id);
+        return { id: s.id, name: s.name.trim(), roles: [...new Set(s.roles.map((r) => r.trim()))] };
+      });
+    }
+    function libraryFingerprint(name, roles) {
+      return JSON.stringify([name, roles]);
+    }
+    function mergeLibrary(current, scripts, baseline, force = false) {
+      const names = { ...current.presetNames },
+        roles = { ...current.customPresets },
+        next = { ...baseline },
+        conflicts = [];
+      for (const item of scripts) {
+        const id = item.id,
+          incoming = libraryFingerprint(item.name, item.roles),
+          hasLocal = Object.hasOwn(names, id) || Object.hasOwn(roles, id),
+          local = libraryFingerprint(names[id] || '', roles[id] || []);
+        if (force || !hasLocal || local === incoming || baseline[id] === local) {
+          names[id] = item.name;
+          roles[id] = [...item.roles];
+          next[id] = incoming;
+        } else conflicts.push(id);
+      }
+      return { presetNames: names, customPresets: roles, baseline: next, conflicts };
+    }
 
-render();
+    render();
 
-function exportSharedLibrary(){return{schemaVersion:1,scripts:presetIds().map(id=>({id,name:presetLabel(id),roles:[...presetRoles(id)]})).filter(s=>s.roles.length)}}
-$('exportLibrary').onclick=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(exportSharedLibrary(),null,2)],{type:'application/json;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='scripts.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('libraryStatus').textContent='已导出剧本库。将 scripts.json 更新到仓库根目录，发布后其他设备才能读取。'};
-let sharedBaseline={};try{sharedBaseline=JSON.parse(localStorage.getItem(key+'-shared-baseline')||'{}')||{}}catch(e){}
-let sharedSyncBusy=false;
-async function syncSharedLibrary(force=false){if(!/^https?:$/.test(location.protocol)){$('libraryStatus').textContent='本地文件模式：可编辑和导出剧本；发布网页后才能检查仓库更新。';return}if(sharedSyncBusy)return;sharedSyncBusy=true;try{const response=await fetch(new URL('scripts.json',location.href),{cache:'no-store'});if(!response.ok)throw Error('load');const scripts=validateLibrary(await response.json()),merged=mergeLibrary(state,scripts,sharedBaseline,force);state.presetNames=merged.presetNames;state.customPresets=merged.customPresets;sharedBaseline=merged.baseline;save();try{localStorage.setItem(key+'-shared-baseline',JSON.stringify(sharedBaseline))}catch(e){}renderPresetNames();$('libraryStatus').textContent=merged.conflicts.length?'已读取共享库；'+merged.conflicts.length+' 个剧本在本机有不同修改，暂保留本机版本。若要覆盖这些修改，请点“采用仓库版本”。':'共享剧本库已更新，共 '+scripts.length+' 个剧本。正在进行的游戏角色选项保持原样，新局请重新选择剧本。'}catch(e){$('libraryStatus').textContent='暂时无法读取共享剧本库，请检查网络、发布状态和 scripts.json 文件。已有记录与本机剧本保留。'}finally{sharedSyncBusy=false}}
-$('syncLibrary').onclick=()=>syncSharedLibrary();
-$('adoptLibrary').onclick=()=>{if(confirm('用仓库版本覆盖同名条目的本机修改？未提交的修改可能丢失，建议先导出共享剧本库。游戏记录保留。'))syncSharedLibrary(true)};
-syncSharedLibrary();
-setInterval(()=>{if(!document.hidden)syncSharedLibrary()},60000);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncSharedLibrary()});
-</script></html>
+    function exportSharedLibrary() {
+      return {
+        schemaVersion: 1,
+        scripts: presetIds()
+          .map((id) => ({ id, name: presetLabel(id), roles: [...presetRoles(id)] }))
+          .filter((s) => s.roles.length),
+      };
+    }
+    $('exportLibrary').onclick = () => {
+      const url = URL.createObjectURL(
+        new Blob(
+          ['window.CLOCKTOWER_LIBRARY = ' + JSON.stringify(exportSharedLibrary(), null, 2) + ';'],
+          { type: 'text/javascript;charset=utf-8' },
+        ),
+      );
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'scripts.js';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      $('libraryStatus').textContent =
+        '已导出剧本库。将 scripts.js 更新到仓库根目录，发布后其他设备才能读取。';
+    };
+    let sharedBaseline = {};
+    try {
+      sharedBaseline = JSON.parse(localStorage.getItem(key + '-shared-baseline') || '{}') || {};
+    } catch (e) {}
+    let sharedSyncBusy = false;
+    async function syncSharedLibrary(force = false) {
+      if (sharedSyncBusy) return;
+      sharedSyncBusy = true;
+      try {
+        let library = window.CLOCKTOWER_LIBRARY;
+        if (/^https?:$/.test(location.protocol)) {
+          const response = await fetch(new URL('scripts.js', location.href), { cache: 'no-store' });
+          if (!response.ok) throw Error('load');
+          const raw = await response.text();
+          const match = raw.match(/^\s*window\.CLOCKTOWER_LIBRARY\s*=\s*([\s\S]*?)\s*;?\s*$/);
+          if (!match) throw Error('format');
+          library = JSON.parse(match[1]);
+        }
+        const scripts = validateLibrary(library),
+          merged = mergeLibrary(state, scripts, sharedBaseline, force);
+        state.presetNames = merged.presetNames;
+        state.customPresets = merged.customPresets;
+        sharedBaseline = merged.baseline;
+        save();
+        try {
+          localStorage.setItem(key + '-shared-baseline', JSON.stringify(sharedBaseline));
+        } catch (e) {}
+        renderPresetNames();
+        $('libraryStatus').textContent = merged.conflicts.length
+          ? '已读取共享库；' +
+            merged.conflicts.length +
+            ' 个剧本在本机有不同修改，暂保留本机版本。若要覆盖这些修改，请点“采用仓库版本”。'
+          : '共享剧本库已更新，共 ' +
+            scripts.length +
+            ' 个剧本。正在进行的游戏角色选项保持原样，新局请重新选择剧本。';
+      } catch (e) {
+        $('libraryStatus').textContent =
+          '暂时无法读取剧本库。请确保 scripts.js 与 HTML 在同一文件夹；网站模式请检查网络和发布状态。已有记录与本机剧本保留。';
+      } finally {
+        sharedSyncBusy = false;
+      }
+    }
+    $('syncLibrary').onclick = () => syncSharedLibrary();
+    $('adoptLibrary').onclick = () => {
+      if (
+        confirm(
+          '用仓库版本覆盖同名条目的本机修改？未提交的修改可能丢失，建议先导出共享剧本库。游戏记录保留。',
+        )
+      )
+        syncSharedLibrary(true);
+    };
+    syncSharedLibrary();
+    setInterval(() => {
+      if (!document.hidden) syncSharedLibrary();
+    }, 60000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) syncSharedLibrary();
+    });
+  </script>
+</html>
