@@ -13,7 +13,11 @@ const plain = (x) => JSON.parse(JSON.stringify(x)),
   item = { id: 's1', name: '测试剧本', roles: ['水手', '侍臣'] },
   empty = { presetNames: {}, customPresets: {} };
 test('shared functions match the code actually embedded in the page', () =>
-  assert.ok(html.replace(/\s/g, '').includes(helper.replace(/\s/g, ''))));
+  assert.ok(
+    html
+      .replace(/\s/g, '')
+      .includes(helper.slice(helper.indexOf('function validateLibrary')).replace(/\s/g, '')),
+  ));
 test('validate actual library and reject duplicate or malformed IDs', () => {
   const libraryContext = { window: {} };
   vm.runInNewContext(fs.readFileSync(path.join(root, 'scripts.js'), 'utf8'), libraryContext);

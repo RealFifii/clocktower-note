@@ -6,9 +6,13 @@
 
 [打开钟楼手记](https://realfifii.github.io/clocktower-note/)
 
+<<<<<<< HEAD
 电脑、手机都可以使用。iPhone 请用 Safari 打开网址，不要在“文件”App 中预览 HTML。可以通过 Safari 分享菜单添加到主屏幕。
 
 ## 开局与记录
+=======
+## 开局怎么设置？
+>>>>>>> 392177418dbfed17eb957f9dc39a6e7b5fc3298f
 
 1. 在“开局设置”选择剧本，点击“使用此剧本”，再选择人数和自己的座位。
 2. 在“座位与角色声明”填写姓名、角色声明、角色猜测、阵营倾向、存活状态和笔记。
@@ -46,6 +50,7 @@
 
 新开一局前请先复制旧局总结；保存过的剧本会保留。共享剧本库不包含游戏笔记，请不要把个人分析记录上传到公开仓库。
 
+<<<<<<< HEAD
 打开网站和获取剧本更新需要网络，目前没有专门的离线缓存功能。
 
 ## 想自己发布一份？
@@ -55,3 +60,6 @@
 [GitHub Pages 官方发布说明](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 
 本地打开时，请把 index.html 和 scripts.js 放在同一个文件夹，再用电脑浏览器打开 index.html。修改本地 scripts.js 后刷新页面。
+=======
+“导出共享剧本库”只包含剧本名称和角色，不包含你的游戏笔记。请不要把个人分析记录上传到公开仓库。
+>>>>>>> 392177418dbfed17eb957f9dc39a6e7b5fc3298f
